@@ -1,0 +1,240 @@
+erdiagram RCModels
+notation=crowsfoot
+
+entity Customer {
+    customer_id: INTEGER key
+    name: VARCHAR(100)
+    email: VARCHAR(100)
+    phone: VARCHAR(30)
+}
+
+entity Address {
+    address_id: INTEGER key
+    line1: VARCHAR(150)
+    line2: VARCHAR(150)
+    city: VARCHAR(80)
+    state: VARCHAR(50)
+    postal_code: VARCHAR(20)
+    country: VARCHAR(80)
+}
+
+entity Customer_Address {
+    customer_address_id: INTEGER key
+    customer_id: INTEGER
+    address_id: INTEGER
+    address_type: VARCHAR(20)
+}
+
+entity Product {
+    product_id: INTEGER key
+    manufacturer_id: INTEGER
+    sku: VARCHAR(40)
+    name: VARCHAR(120)
+    product_type: VARCHAR(50)
+    unit_price: DECIMAL(10,2)
+    min_order_quantity: INTEGER
+    reorder_point: INTEGER
+    safety_stock: INTEGER
+}
+
+entity Manufacturer {
+    manufacturer_id: INTEGER key
+    name: VARCHAR(120)
+    contact_info: VARCHAR(200)
+}
+
+entity Order {
+    order_id: INTEGER key
+    customer_id: INTEGER
+    order_date: DATE
+    status: VARCHAR(30)
+}
+
+entity Order_Line {
+    order_line_id: INTEGER key
+    order_id: INTEGER
+    product_id: INTEGER
+    qty_ordered: INTEGER
+    qty_shipped: INTEGER
+    unit_price: DECIMAL(10,2)
+    status: VARCHAR(30)
+}
+
+entity Shipment {
+    shipment_id: INTEGER key
+    ship_date: DATE
+    carrier: VARCHAR(60)
+    tracking_no: VARCHAR(60)
+    status: VARCHAR(30)
+}
+
+entity Shipment_Line {
+    shipment_line_id: INTEGER key
+    shipment_id: INTEGER
+    order_line_id: INTEGER
+    product_id: INTEGER
+    qty_shipped: INTEGER
+}
+
+entity Invoice {
+    invoice_id: INTEGER key
+    customer_id: INTEGER
+    order_id: INTEGER
+    invoice_date: DATE
+    status: VARCHAR(30)
+    total_amount: DECIMAL(12,2)
+}
+
+entity Invoice_Line {
+    invoice_line_id: INTEGER key
+    invoice_id: INTEGER
+    order_line_id: INTEGER
+    product_id: INTEGER
+    qty_invoiced: INTEGER
+    unit_price: DECIMAL(10,2)
+}
+
+entity Purchase {
+    purchase_id: INTEGER key
+    manufacturer_id: INTEGER
+    purchase_date: DATE
+    status: VARCHAR(30)
+}
+
+entity Purchase_Line {
+    purchase_line_id: INTEGER key
+    purchase_id: INTEGER
+    product_id: INTEGER
+    qty_ordered: INTEGER
+    unit_cost: DECIMAL(10,2)
+}
+
+entity Receipt {
+    receipt_id: INTEGER key
+    purchase_id: INTEGER
+    receipt_date: DATE
+}
+
+entity Receipt_Line {
+    receipt_line_id: INTEGER key
+    receipt_id: INTEGER
+    product_id: INTEGER
+    qty_received: INTEGER
+}
+
+entity Location {
+    location_id: INTEGER key
+    name: VARCHAR(80)
+    description: VARCHAR(200)
+}
+
+entity Inventory {
+    inventory_id: INTEGER key
+    product_id: INTEGER
+    location_id: INTEGER
+    on_hand_qty: INTEGER
+    allocated_qty: INTEGER
+    on_order_qty: INTEGER
+}
+
+entity Payment {
+    payment_id: INTEGER key
+    customer_id: INTEGER
+    invoice_id: INTEGER
+    amount: DECIMAL(12,2)
+    payment_date: DATE
+    method: VARCHAR(30)
+    status: VARCHAR(30)
+}
+
+relationship CustomerOrders {
+    Customer[1 | "customer"] -> Order[0..N | "orders"]
+}
+
+relationship OrderHasLines {
+    Order[1 | "order"] -> Order_Line[1..N | "order_lines"]
+}
+
+relationship ProductOnOrderLines {
+    Product[1 | "product"] -> Order_Line[0..N | "order_lines"]
+}
+
+relationship CustomerInvoices {
+    Customer[1 | "customer"] -> Invoice[0..N | "invoices"]
+}
+
+relationship OrderInvoices {
+    Order[1 | "order"] -> Invoice[0..N | "invoices"]
+}
+
+relationship InvoiceLines {
+    Invoice[1 | "invoice"] -> Invoice_Line[1..N | "invoice_lines"]
+}
+
+relationship ProductOnInvoiceLines {
+    Product[1 | "product"] -> Invoice_Line[0..N | "invoice_lines"]
+}
+
+relationship OrderLineToInvoiceLine {
+    Order_Line[1 | "order_line"] -> Invoice_Line[0..N | "invoice_lines"]
+}
+
+relationship Shipments {
+    Shipment[1 | "shipment"] -> Shipment_Line[1..N | "shipment_lines"]
+}
+
+relationship ShipmentLinesToOrderLines {
+    Order_Line[1 | "order_line"] -> Shipment_Line[0..N | "shipment_lines"]
+}
+
+relationship ManufacturerProducts {
+    Manufacturer[1 | "manufacturer"] -> Product[0..N | "products"]
+}
+
+relationship ManufacturerPurchases {
+    Manufacturer[1 | "manufacturer"] -> Purchase[0..N | "purchases"]
+}
+
+relationship PurchaseLines {
+    Purchase[1 | "purchase"] -> Purchase_Line[1..N | "purchase_lines"]
+}
+
+relationship ProductOnPurchaseLines {
+    Product[1 | "product"] -> Purchase_Line[0..N | "purchase_lines"]
+}
+
+relationship ReceiptsPerPurchase {
+    Purchase[1 | "purchase"] -> Receipt[0..N | "receipts"]
+}
+
+relationship ReceiptLines {
+    Receipt[1 | "receipt"] -> Receipt_Line[1..N | "receipt_lines"]
+}
+
+relationship ProductOnReceiptLines {
+    Product[1 | "product"] -> Receipt_Line[0..N | "receipt_lines"]
+}
+
+relationship InventoryProduct {
+    Product[1 | "product"] -> Inventory[0..N | "inventory"]
+}
+
+relationship InventoryLocation {
+    Location[1 | "location"] -> Inventory[0..N | "inventory"]
+}
+
+relationship CustomerAddresses {
+    Customer[1 | "customer"] -> Customer_Address[0..N | "addresses"]
+}
+
+relationship AddressAssignments {
+    Address[1 | "address"] -> Customer_Address[0..N | "customers"]
+}
+
+relationship InvoicePayments {
+    Invoice[1 | "invoice"] -> Payment[0..N | "payments"]
+}
+
+relationship CustomerPayments {
+    Customer[1 | "customer"] -> Payment[0..N | "payments"]
+}
